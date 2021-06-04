@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-import {Application, Context} from 'probot';
+import {Context, Probot} from 'probot';
+import {EventPayloads} from '@octokit/webhooks';
 import {Octokit} from '@octokit/rest';
-import Webhooks from '@octokit/webhooks';
 
 import {InviteBot} from './src/invite_bot';
 
 type CommentWebhookPayload =
-  | Webhooks.WebhookPayloadIssueComment
-  | Webhooks.WebhookPayloadIssues
-  | Webhooks.WebhookPayloadPullRequest
-  | Webhooks.WebhookPayloadPullRequestReview
-  | Webhooks.WebhookPayloadPullRequestReviewComment;
+  | EventPayloads.WebhookPayloadIssueComment
+  | EventPayloads.WebhookPayloadIssues
+  | EventPayloads.WebhookPayloadPullRequest
+  | EventPayloads.WebhookPayloadPullRequestReview
+  | EventPayloads.WebhookPayloadPullRequestReviewComment;
 
-export default (app: Application): void => {
+export default (app: Probot): void => {
   if (process.env.NODE_ENV !== 'test') {
     require('dotenv').config();
   }
@@ -52,7 +52,7 @@ export default (app: Application): void => {
 
   app.on(
     'issue_comment.created',
-    async (context: Context<Webhooks.WebhookPayloadIssueComment>) => {
+    async (context: Context<EventPayloads.WebhookPayloadIssueComment>) => {
       await botFromContext(context).processComment(
         context.payload.repository.name,
         context.payload.issue.number,
@@ -64,7 +64,7 @@ export default (app: Application): void => {
 
   app.on(
     'issues.opened',
-    async (context: Context<Webhooks.WebhookPayloadIssues>) => {
+    async (context: Context<EventPayloads.WebhookPayloadIssues>) => {
       await botFromContext(context).processComment(
         context.payload.repository.name,
         context.payload.issue.number,
@@ -76,7 +76,7 @@ export default (app: Application): void => {
 
   app.on(
     'pull_request.opened',
-    async (context: Context<Webhooks.WebhookPayloadPullRequest>) => {
+    async (context: Context<EventPayloads.WebhookPayloadPullRequest>) => {
       await botFromContext(context).processComment(
         context.payload.repository.name,
         context.payload.pull_request.number,
@@ -88,7 +88,7 @@ export default (app: Application): void => {
 
   app.on(
     'pull_request_review.submitted',
-    async (context: Context<Webhooks.WebhookPayloadPullRequestReview>) => {
+    async (context: Context<EventPayloads.WebhookPayloadPullRequestReview>) => {
       await botFromContext(context).processComment(
         context.payload.repository.name,
         context.payload.pull_request.number,
@@ -101,7 +101,7 @@ export default (app: Application): void => {
   app.on(
     'pull_request_review_comment.created',
     async (
-      context: Context<Webhooks.WebhookPayloadPullRequestReviewComment>
+      context: Context<EventPayloads.WebhookPayloadPullRequestReviewComment>
     ) => {
       await botFromContext(context).processComment(
         context.payload.repository.name,
@@ -118,7 +118,7 @@ export default (app: Application): void => {
       github,
       payload,
       log,
-    }: Context<Webhooks.WebhookPayloadOrganization>) => {
+    }: Context<EventPayloads.WebhookPayloadOrganization>) => {
       const inviteBot = new InviteBot(
         (github as unknown) as Octokit,
         payload.organization.login,
