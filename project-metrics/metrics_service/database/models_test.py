@@ -9,8 +9,8 @@ import sqlalchemy
 from sqlalchemy import orm
 import sys
 
-from database import init_db
-from database import models
+import init_db
+import models
 
 FLAGS = flags.FLAGS
 FLAGS(sys.argv)

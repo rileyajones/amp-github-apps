@@ -1,12 +1,13 @@
 """Tests for CircleCI API interface"""
 
+import json
+import requests
 import unittest
 from unittest import mock
-import requests
 from database import models
 
 import env
-from apis.circleci import CircleCiAPI
+from apis.circleci import CircleCiAPI, _dict_to_params
 
 class FakeValidResponse():
   status_code = 200
@@ -42,6 +43,9 @@ class FakeValidResponse():
   }
   '''
 
+  def json(self):
+    return json.loads(self.text)
+
 def stub_circleci_api():
   mock.patch.object(
         env, 'get', side_effect={
@@ -63,17 +67,17 @@ class TestCircleCiApi(unittest.TestCase):
     self.addCleanup(mock.patch.stopall)
 
   def testDictToParams(self):
-    self.assertEqual(CircleCiAPI._dict_to_params({}), '')
+    self.assertEqual(_dict_to_params({}), '')
 
-    self.assertEqual(CircleCiAPI._dict_to_params({
+    self.assertEqual(_dict_to_params({
       'reporting-window': '',
     }), '?reporting-window=')
 
-    self.assertEqual(CircleCiAPI._dict_to_params({
+    self.assertEqual(_dict_to_params({
       'reporting-window': models.CircleCiReportingWindow.LAST_90_DAYS.value
     }), '?reporting-window=last-90-days')
 
-    self.assertEqual(CircleCiAPI._dict_to_params({'a': 1, 'b': 2}), '?a=1&b=2')
+    self.assertEqual(_dict_to_params({'a': 1, 'b': 2}), '?a=1&b=2')
 
   def testGetWorkflowStats(self):
     CircleCiAPI().get_workflow_stats()

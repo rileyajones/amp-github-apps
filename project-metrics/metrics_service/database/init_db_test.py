@@ -7,8 +7,8 @@ from unittest import mock
 import sqlalchemy
 import sys
 
-from database import init_db
-from database import models
+import init_db
+import models
 
 FLAGS = flags.FLAGS
 FLAGS(sys.argv)
